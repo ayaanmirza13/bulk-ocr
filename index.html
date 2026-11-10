@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#152238">
+<meta name="description" content="Private bulk OCR tool for extracting Indian names and phone numbers from photos.">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Bulk OCR Extractor</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#172033;background:#f4f6fa}
+*{box-sizing:border-box}body{margin:0;padding:0 0 32px}.top{background:#152238;color:white;padding:22px 18px 25px}
+.top h1{font-size:23px;margin:0 0 6px}.top p{margin:0;color:#cbd5e1;font-size:13px;line-height:1.5}
+main{max-width:850px;margin:auto;padding:14px}
+.card{background:white;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 2px 8px #14213d0a}
+h2{font-size:17px;margin:0 0 12px}.muted{color:#64748b;font-size:13px;line-height:1.5}
+.drop{border:2px dashed #94a3b8;border-radius:14px;padding:25px 14px;text-align:center;background:#f8fafc}
+.drop strong{display:block;margin:7px 0}.btn,button{border:0;border-radius:11px;background:#1d4ed8;color:white;padding:12px 15px;font-weight:650;font-size:14px;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#e8eef8;color:#172033}.danger{background:#fee2e2;color:#991b1b}
+input[type=file]{display:none}.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.row>*{flex:1}.row button{flex:0 0 auto}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.stat{background:#f1f5f9;border-radius:11px;padding:10px}.stat b{display:block;font-size:20px}.stat span{font-size:11px;color:#64748b}
+.progress{height:9px;background:#e2e8f0;border-radius:9px;overflow:hidden;margin:10px 0}.bar{height:100%;width:0;background:#2563eb;transition:width .2s}
+.status{font-size:13px;color:#334155;min-height:20px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:560px;font-size:13px}th,td{border-bottom:1px solid #e2e8f0;padding:9px 7px;text-align:left}th{background:#f8fafc;position:sticky;top:0}
+td input{width:100%;min-width:110px;border:1px solid #cbd5e1;border-radius:7px;padding:8px;font:inherit}
+.tag{display:inline-block;background:#dbeafe;color:#1e40af;border-radius:20px;padding:3px 8px;font-size:11px}
+.small{font-size:11px;color:#64748b}.notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:11px;padding:11px;font-size:12px;line-height:1.5}
+footer{text-align:center;color:#64748b;font-size:11px;padding:10px}
+@media(min-width:650px){main{padding:20px}.top{padding:28px calc((100% - 810px)/2)}}
+</style>
+</head>
+<body>
+<header class="top">
+<h1>Bulk OCR Extractor</h1>
+<p>Extract names and Indian mobile numbers from many photos. Your images are processed in this browser.</p>
+</header>
+<main>
+<section class="card">
+<h2>1. Add your photos</h2>
+<div class="drop" id="drop">
+<div style="font-size:30px">📷</div><strong>Select up to 500 photos</strong>
+<p class="muted">JPG · JPEG · PNG · WebP · Select multiple images from your Android gallery.</p>
+<label class="btn" for="files">Choose photos</label>
+<input id="files" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+</div>
+<div class="row" style="margin-top:12px">
+<div class="muted" id="fileCount">No photos selected</div>
+<button class="secondary" id="clearFiles" disabled>Clear selection</button>
+</div>
+<div class="notice" style="margin-top:12px">For best results, use clear, upright images. OCR works best with printed English text. Handwriting and blurry screenshots may need manual correction.</div>
+</section>
+
+<section class="card">
+<h2>2. Extract information</h2>
+<div class="row">
+<button id="start" disabled>Start extraction</button>
+<button id="stop" class="secondary" disabled>Pause after current photo</button>
+</div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="status" id="status">Choose photos to begin.</div>
+<div class="small" id="detail"></div>
+<div class="statgrid">
+<div class="stat"><b id="done">0</b><span>Photos processed</span></div>
+<div class="stat"><b id="found">0</b><span>Phone numbers found</span></div>
+<div class="stat"><b id="dupes">0</b><span>Duplicate numbers</span></div>
+</div>
+</section>
+
+<section class="card">
+<h2>3. Review and export</h2>
+<p class="muted">Edit names and numbers before exporting. One row is created for each phone number found. If a photo contains multiple numbers, it can create multiple rows.</p>
+<div class="row" style="margin:12px 0">
+<button id="export" disabled>Download Excel (.xlsx)</button>
+<button id="csv" class="secondary" disabled>Download CSV</button>
+<button id="clearRows" class="secondary" disabled>Clear results</button>
+</div>
+<div class="tablewrap">
+<table><thead><tr><th>#</th><th>Name</th><th>Phone number</th><th>Source photo</th><th>Review</th></tr></thead>
+<tbody id="results"><tr><td colspan="5" class="muted">Your extracted contacts will appear here.</td></tr></tbody></table>
+</div>
+</section>
+<section class="card">
+<h2>Privacy and limits</h2>
+<p class="muted">Image files are read locally by your browser. OCR is performed using Tesseract.js downloaded from a public CDN. Excel export uses SheetJS from a public CDN. No image upload or paid API is used by this app. This app does not send your contacts to a server.</p>
+<p class="muted">For 500 photos, keep Chrome open and your phone charged. Process in batches of 50–100 if your phone has limited memory. Export regularly so you don't lose work if the tab closes.</p>
+</section>
+</main>
+<footer>Bulk OCR Extractor · Version 1.0 · Browser-based processing</footer>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let files=[], rows=[], stopRequested=false, busy=false, worker=null;
+const phoneRegex=/(?:(?:\+?91|0091)[\s().-]*)?(?:[6-9](?:[\s().-]*\d){9})/g;
+function normalizePhone(s){
+ let d=s.replace(/\D/g,'');
+ if(d.startsWith('0091')) d=d.slice(4);
+ else if(d.startsWith('91') && d.length===12) d=d.slice(2);
+ return d.length===10 && /^[6-9]\d{9}$/.test(d)?d:null;
+}
+function extractPhones(text){
+ const out=[], seen=new Set(); let m;
+ phoneRegex.lastIndex=0;
+ while((m=phoneRegex.exec(text))!==null){
+   const n=normalizePhone(m[0]);
+   if(n&&!seen.has(n)){seen.add(n);out.push({number:n,index:m.index});}
+ }
+ return out;
+}
+function guessName(text, phoneIndex){
+ const before=text.slice(0,phoneIndex).split(/\n/).map(x=>x.trim()).filter(Boolean);
+ const candidates=before.slice(-4).reverse();
+ for(const line of candidates){
+   const clean=line.replace(/[|•:;,_]+/g,' ').replace(/\s+/g,' ').trim();
+   if(clean.length<3||clean.length>55)continue;
+   if(/\d/.test(clean))continue;
+   if(/^(name|phone|mobile|contact|address|email|date|whatsapp)\b/i.test(clean))continue;
+   const words=clean.split(/\s+/);
+   if(words.length>=2 && words.length<=5 && words.every(w=>/^[A-Za-z][A-Za-z.'-]*$/.test(w)))return clean;
+ }
+ return "";
+}
+function updateStats(){
+ $('done').textContent=rows.reduce((s,r)=>s+(r._done?1:0),0);
+ $('found').textContent=rows.length;
+ const nums=rows.map(r=>r.phone).filter(Boolean);
+ $('dupes').textContent=nums.length-new Set(nums).size;
+ $('export').disabled=!rows.length;$('csv').disabled=!rows.length;$('clearRows').disabled=!rows.length;
+ renderRows();
+}
+function renderRows(){
+ const body=$('results');body.innerHTML='';
+ if(!rows.length){body.innerHTML='<tr><td colspan="5" class="muted">Your extracted contacts will appear here.</td></tr>';return;}
+ rows.forEach((r,i)=>{
+  const tr=document.createElement('tr');
+  const vals=[i+1,r.name,r.phone,r.source,r.review?'Check':'OK'];
+  vals.forEach((v,j)=>{
+   const td=document.createElement('td');
+   if(j===1||j===2){const inp=document.createElement('input');inp.value=v||'';inp.setAttribute('aria-label',j===1?'Name':'Phone number');inp.addEventListener('change',()=>{if(j===1)r.name=inp.value;else r.phone=inp.value.replace(/\D/g,'').slice(-10);updateStats();});td.appendChild(inp);}
+   else {td.textContent=v;if(j===4&&r.review)td.innerHTML='<span class="tag">Review</span>';}
+   tr.appendChild(td);
+  });body.appendChild(tr);
+ });
+}
+$('files').addEventListener('change',e=>{
+ const incoming=[...e.target.files].filter(f=>f.type.startsWith('image/'));
+ files=[...files,...incoming].slice(0,500);
+ $('fileCount').textContent=files.length+' photo(s) selected';
+ $('start').disabled=!files.length||busy;$('clearFiles').disabled=!files.length;
+ $('status').textContent=files.length?'Ready to process.':'Choose photos to begin.';
+ e.target.value='';
+});
+$('clearFiles').onclick=()=>{files=[];$('fileCount').textContent='No photos selected';$('start').disabled=true;$('clearFiles').disabled=true;};
+$('stop').onclick=()=>{stopRequested=true;$('stop').disabled=true;$('status').textContent='Will pause after the current photo…';};
+async function initWorker(){
+ if(worker)return worker;
+ if(!window.Tesseract)throw new Error('OCR library did not load. Check your internet connection and refresh.');
+ worker=await Tesseract.createWorker('eng',1,{logger:m=>{
+  if(m.status==='recognizing text')$('detail').textContent='Reading text… '+Math.round((m.progress||0)*100)+'%';
+ }});
+ return worker;
+}
+async function processImage(file){
+ const w=await initWorker();
+ const result=await w.recognize(file);
+ const text=result.data.text||'';
+ const phones=extractPhones(text);
+ if(!phones.length)rows.push({name:'',phone:'',source:file.name,review:true,_done:true});
+ else phones.forEach(p=>{
+  const name=guessName(text,p.index);
+  rows.push({name,phone:p.number,source:file.name,review:!name,_done:true});
+ });
+}
+$('start').onclick=async()=>{
+ if(busy||!files.length)return;
+ busy=true;stopRequested=false;$('start').disabled=true;$('stop').disabled=false;
+ let completed=0;const total=files.length;
+ $('status').textContent='Starting OCR engine…';
+ try{
+  await initWorker();
+  for(let i=0;i<total;i++){
+   if(stopRequested)break;
+   $('status').textContent='Processing '+(i+1)+' of '+total+': '+files[i].name;
+   try{await processImage(files[i]);}catch(err){rows.push({name:'',phone:'',source:files[i].name,review:true,_done:true});}
+   completed++;
+   $('bar').style.width=(completed/total*100)+'%';
+   $('detail').textContent='Completed '+completed+' / '+total+' photos';
+   updateStats();
+  }
+  $('status').textContent=stopRequested?'Paused. You can export results or resume with the remaining photos.':'Finished processing '+completed+' photo(s).';
+  if(stopRequested)files=files.slice(completed);
+  else files=[];
+  $('fileCount').textContent=files.length?files.length+' photo(s) remaining':'All selected photos processed';
+ }catch(e){$('status').textContent='Error: '+e.message;}
+ finally{busy=false;$('start').disabled=!files.length;$('stop').disabled=true;}
+};
+function exportRows(){
+ return rows.map(r=>({'Name':r.name,'Phone Number':r.phone,'Source Photo':r.source,'Needs Review':r.review?'Yes':'No'}));
+}
+$('export').onclick=()=>{
+ if(!window.XLSX){alert('Excel library did not load. Check internet and refresh.');return;}
+ const ws=XLSX.utils.json_to_sheet(exportRows(),{header:['Name','Phone Number','Source Photo','Needs Review']});
+ ws['!cols']=[{wch:28},{wch:18},{wch:35},{wch:14}];
+ const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Contacts');
+ XLSX.writeFile(wb,'bulk_ocr_contacts.xlsx');
+};
+$('csv').onclick=()=>{
+ const data=exportRows(), keys=['Name','Phone Number','Source Photo','Needs Review'];
+ const esc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const csv=[keys.map(esc).join(','),...data.map(r=>keys.map(k=>esc(r[k])).join(','))].join('\r\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download='bulk_ocr_contacts.csv';a.click();URL.revokeObjectURL(a.href);
+};
+$('clearRows').onclick=()=>{if(confirm('Delete all extracted results?')){rows=[];$('bar').style.width='0%';updateStats();$('status').textContent='Results cleared.';}};
+const drop=$('drop');
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.style.background='#eff6ff';});
+drop.addEventListener('dragleave',()=>drop.style.background='#f8fafc');
+drop.addEventListener('drop',e=>{e.preventDefault();drop.style.background='#f8fafc';const incoming=[...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));files=[...files,...incoming].slice(0,500);$('fileCount').textContent=files.length+' photo(s) selected';$('start').disabled=!files.length;});
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script>
+</body></html>
