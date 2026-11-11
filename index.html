@@ -67,15 +67,23 @@ footer{text-align:center;color:#64748b;font-size:11px;padding:10px}
 
 <section class="card">
 <h2>3. Review and export</h2>
-<p class="muted">Edit names and numbers before exporting. One row is created for each phone number found. If a photo contains multiple numbers, it can create multiple rows.</p>
+<p class="muted">Your Excel will have exactly three columns: Name (custom serial), Country Code (+91), and Phone Number. You can edit phone numbers before exporting.</p>
+<div class="card" style="background:#f8fafc;margin:10px 0;padding:12px;box-shadow:none">
+<strong style="font-size:14px">Custom serial numbers</strong>
+<p class="muted" style="margin:5px 0 10px">The Name column will contain your custom serials, e.g. ace1-001, ace1-002, ace1-003.</p>
+<div class="row">
+<label style="font-size:12px;color:#475569">Prefix<input id="serialPrefix" type="text" value="ace1" maxlength="16" style="display:block;width:100%;margin-top:5px;border:1px solid #cbd5e1;border-radius:8px;padding:10px;font:inherit"></label>
+<label style="font-size:12px;color:#475569">Starting number<input id="serialStart" type="number" min="0" max="999999999" value="1" style="display:block;width:100%;margin-top:5px;border:1px solid #cbd5e1;border-radius:8px;padding:10px;font:inherit"></label>
+</div>
+</div>
 <div class="row" style="margin:12px 0">
 <button id="export" disabled>Download Excel (.xlsx)</button>
 <button id="csv" class="secondary" disabled>Download CSV</button>
 <button id="clearRows" class="secondary" disabled>Clear results</button>
 </div>
 <div class="tablewrap">
-<table><thead><tr><th>#</th><th>Name</th><th>Phone number</th><th>Source photo</th><th>Review</th></tr></thead>
-<tbody id="results"><tr><td colspan="5" class="muted">Your extracted contacts will appear here.</td></tr></tbody></table>
+<table><thead><tr><th>Name</th><th>Country Code</th><th>Phone Number</th></tr></thead>
+<tbody id="results"><tr><td colspan="3" class="muted">Your extracted contacts will appear here.</td></tr></tbody></table>
 </div>
 </section>
 <section class="card">
@@ -84,7 +92,7 @@ footer{text-align:center;color:#64748b;font-size:11px;padding:10px}
 <p class="muted">For 500 photos, keep Chrome open and your phone charged. Process in batches of 50–100 if your phone has limited memory. Export regularly so you don't lose work if the tab closes.</p>
 </section>
 </main>
-<footer>Bulk OCR Extractor · Version 1.0 · Browser-based processing</footer>
+<footer>Bulk OCR Extractor · Version 1.1 · Browser-based processing</footer>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
@@ -127,16 +135,22 @@ function updateStats(){
  $('export').disabled=!rows.length;$('csv').disabled=!rows.length;$('clearRows').disabled=!rows.length;
  renderRows();
 }
+function serialFor(index){
+ const prefix=($('serialPrefix')?.value||'ace1').trim()||'ace1';
+ const raw=$('serialStart')?.value??'1';
+ const start=Math.max(0,parseInt(raw,10)||0);
+ return prefix+'-'+String(start+index).padStart(3,'0');
+}
 function renderRows(){
  const body=$('results');body.innerHTML='';
- if(!rows.length){body.innerHTML='<tr><td colspan="5" class="muted">Your extracted contacts will appear here.</td></tr>';return;}
+ if(!rows.length){body.innerHTML='<tr><td colspan="3" class="muted">Your extracted contacts will appear here.</td></tr>';return;}
  rows.forEach((r,i)=>{
   const tr=document.createElement('tr');
-  const vals=[i+1,r.name,r.phone,r.source,r.review?'Check':'OK'];
+  const vals=[serialFor(i),'+91',r.phone];
   vals.forEach((v,j)=>{
    const td=document.createElement('td');
-   if(j===1||j===2){const inp=document.createElement('input');inp.value=v||'';inp.setAttribute('aria-label',j===1?'Name':'Phone number');inp.addEventListener('change',()=>{if(j===1)r.name=inp.value;else r.phone=inp.value.replace(/\D/g,'').slice(-10);updateStats();});td.appendChild(inp);}
-   else {td.textContent=v;if(j===4&&r.review)td.innerHTML='<span class="tag">Review</span>';}
+   if(j===2){const inp=document.createElement('input');inp.value=v||'';inp.inputMode='numeric';inp.setAttribute('aria-label','Phone number');inp.addEventListener('change',()=>{r.phone=inp.value.replace(/\D/g,'').slice(-10);updateStats();});td.appendChild(inp);}
+   else {td.textContent=v;}
    tr.appendChild(td);
   });body.appendChild(tr);
  });
@@ -194,21 +208,23 @@ $('start').onclick=async()=>{
  finally{busy=false;$('start').disabled=!files.length;$('stop').disabled=true;}
 };
 function exportRows(){
- return rows.map(r=>({'Name':r.name,'Phone Number':r.phone,'Source Photo':r.source,'Needs Review':r.review?'Yes':'No'}));
+ return rows.map((r,i)=>({'Name':serialFor(i),'Country Code':'+91','Phone Number':r.phone}));
 }
 $('export').onclick=()=>{
  if(!window.XLSX){alert('Excel library did not load. Check internet and refresh.');return;}
- const ws=XLSX.utils.json_to_sheet(exportRows(),{header:['Name','Phone Number','Source Photo','Needs Review']});
- ws['!cols']=[{wch:28},{wch:18},{wch:35},{wch:14}];
+ const ws=XLSX.utils.json_to_sheet(exportRows(),{header:['Name','Country Code','Phone Number']});
+ ws['!cols']=[{wch:18},{wch:16},{wch:20}];
  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Contacts');
  XLSX.writeFile(wb,'bulk_ocr_contacts.xlsx');
 };
 $('csv').onclick=()=>{
- const data=exportRows(), keys=['Name','Phone Number','Source Photo','Needs Review'];
+ const data=exportRows(), keys=['Name','Country Code','Phone Number'];
  const esc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
  const csv=[keys.map(esc).join(','),...data.map(r=>keys.map(k=>esc(r[k])).join(','))].join('\r\n');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download='bulk_ocr_contacts.csv';a.click();URL.revokeObjectURL(a.href);
 };
+$('serialPrefix').addEventListener('input',renderRows);
+$('serialStart').addEventListener('input',renderRows);
 $('clearRows').onclick=()=>{if(confirm('Delete all extracted results?')){rows=[];$('bar').style.width='0%';updateStats();$('status').textContent='Results cleared.';}};
 const drop=$('drop');
 drop.addEventListener('dragover',e=>{e.preventDefault();drop.style.background='#eff6ff';});
