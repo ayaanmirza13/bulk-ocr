@@ -1,4 +1,4 @@
-const CACHE='bulk-ocr-v2';
+const CACHE='bulk-ocr-v4';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))));
 self.addEventListener('activate',e=>e.waitUntil(
