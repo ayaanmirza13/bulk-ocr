@@ -1,20 +1,21 @@
-# Bulk OCR Extractor
+# Bulk OCR Extractor v2.0
 
-A free browser-based OCR app for Android Chrome. It processes images locally with Tesseract.js and exports contacts to Excel with SheetJS.
+## Files
+- `index.html` — the browser app.
+- `icon.svg` — app icon.
+- `Supabase_setup.md` — optional setup for permanent duplicate history.
 
-## Run it
-1. Upload this folder to a GitHub repository.
-2. In GitHub, open Settings → Pages.
-3. Select Deploy from a branch, choose `main` and `/ (root)`, then Save.
-4. Open the published HTTPS URL in Chrome on Android.
-5. Chrome menu (⋮) → Install app / Add to Home screen.
+## Run
+Open `index.html` in a modern browser, or deploy the folder to GitHub Pages. Internet access is required for the OCR/export libraries loaded from public CDNs.
 
-## Use
-Choose multiple JPG/PNG/WebP photos (up to 500), start extraction, review/edit names and phone numbers, then download Excel.
+## Main features
+- OCR extraction of Indian mobile numbers from multiple images.
+- Photos processed, numbers found, duplicates, and unique-number statistics.
+- Editable contact list.
+- Split VCF, CSV, and Excel exports by the maximum contacts per file.
+- ZIP contains the split exports (VCF, CSV and Excel); no combined VCF.
+- Master file naming/serial settings and per-file edits.
+- Optional Supabase duplicate-history sync.
 
 ## Important
-- OCR is performed in the browser. Photos are not sent to a server by this app.
-- The OCR and spreadsheet libraries load from jsDelivr CDN, so internet is required.
-- For reliability on phones, process 50–100 images per batch and export between batches.
-- Name suggestions are heuristic. Review flagged rows and verify phone numbers.
-- This version uses English OCR. Hindi text and handwriting are not reliably supported.
+The cloud history feature is optional. Follow `Supabase_setup.md` and use only your Supabase anon/public key. Never put a `service_role` key in this browser app. The OCR runs locally; if you enable cloud sync, normalized phone numbers are sent to your own Supabase project.

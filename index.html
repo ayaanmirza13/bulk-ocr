@@ -1,262 +1,120 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#152238">
-<meta name="description" content="Private bulk OCR tool for extracting Indian names and phone numbers from photos.">
-<link rel="manifest" href="manifest.webmanifest">
-<title>Bulk OCR Extractor</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#050505"><title>Bulk OCR · v2.0</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
 <style>
-:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#172033;background:#f4f6fa}
-*{box-sizing:border-box}body{margin:0;padding:0 0 32px}.top{background:#152238;color:white;padding:22px 18px 25px}
-.top h1{font-size:23px;margin:0 0 6px}.top p{margin:0;color:#cbd5e1;font-size:13px;line-height:1.5}
-main{max-width:850px;margin:auto;padding:14px}
-.card{background:white;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 2px 8px #14213d0a}
-h2{font-size:17px;margin:0 0 12px}.muted{color:#64748b;font-size:13px;line-height:1.5}
-.drop{border:2px dashed #94a3b8;border-radius:14px;padding:25px 14px;text-align:center;background:#f8fafc}
-.drop strong{display:block;margin:7px 0}.btn,button{border:0;border-radius:11px;background:#1d4ed8;color:white;padding:12px 15px;font-weight:650;font-size:14px;cursor:pointer}
-button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#e8eef8;color:#172033}.danger{background:#fee2e2;color:#991b1b}
-input[type=file]{display:none}.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.row>*{flex:1}.row button{flex:0 0 auto}
-.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.stat{background:#f1f5f9;border-radius:11px;padding:10px}.stat b{display:block;font-size:20px}.stat span{font-size:11px;color:#64748b}
-.progress{height:9px;background:#e2e8f0;border-radius:9px;overflow:hidden;margin:10px 0}.bar{height:100%;width:0;background:#2563eb;transition:width .2s}
-.status{font-size:13px;color:#334155;min-height:20px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:560px;font-size:13px}th,td{border-bottom:1px solid #e2e8f0;padding:9px 7px;text-align:left}th{background:#f8fafc;position:sticky;top:0}
-td input{width:100%;min-width:110px;border:1px solid #cbd5e1;border-radius:7px;padding:8px;font:inherit}
-.tag{display:inline-block;background:#dbeafe;color:#1e40af;border-radius:20px;padding:3px 8px;font-size:11px}
-.small{font-size:11px;color:#64748b}.notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:11px;padding:11px;font-size:12px;line-height:1.5}
-footer{text-align:center;color:#64748b;font-size:11px;padding:10px}
-@media(min-width:650px){main{padding:20px}.top{padding:28px calc((100% - 810px)/2)}}
+:root{color-scheme:dark;font-family:Inter,system-ui,Arial,sans-serif;background:#050505;color:#f5f5f5}
+*{box-sizing:border-box}body{margin:0;background:#050505}header{padding:24px 18px;border-bottom:1px solid #242424;background:#090909}
+h1{font-size:25px;margin:0 0 5px}header p,.muted{color:#999;font-size:13px;line-height:1.5}main{max-width:1000px;margin:auto;padding:14px}
+.card{background:#101010;border:1px solid #292929;border-radius:15px;padding:16px;margin:13px 0}
+h2{font-size:17px;margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px}
+.stat{background:#191919;border:1px solid #303030;border-radius:12px;padding:12px}.stat b{display:block;font-size:23px}.stat span{font-size:11px;color:#aaa}
+.stat.total{grid-column:1/-1;border-color:#777;background:#202020}.stat.total b{font-size:32px}
+button,.btn{background:#f5f5f5;color:#090909;border:0;border-radius:9px;padding:11px 14px;font-weight:700;font-size:13px;cursor:pointer}
+button.secondary{background:#292929;color:#eee;border:1px solid #414141}button:disabled{opacity:.4;cursor:not-allowed}
+input,select{background:#080808;color:#eee;border:1px solid #414141;border-radius:8px;padding:10px;width:100%;min-width:0}
+label{font-size:12px;color:#bbb;display:block;margin:8px 0 5px}.row{display:flex;gap:9px;flex-wrap:wrap;align-items:end}.row>*{flex:1}.row button{flex:0 0 auto}
+.drop{border:1px dashed #666;border-radius:12px;padding:22px;text-align:center;background:#090909}
+input[type=file]{display:none}.progress{height:8px;background:#333;border-radius:9px;overflow:hidden;margin:12px 0}.bar{height:100%;width:0;background:#eee}
+.status{font-size:13px;color:#bbb;min-height:20px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:620px;font-size:12px}
+th,td{padding:8px;border-bottom:1px solid #303030;text-align:left}td input{min-width:100px}
+.filecfg{border:1px solid #333;border-radius:10px;padding:10px;margin:8px 0}.filecfg .row{align-items:center}
+.notice{background:#1c1a12;border:1px solid #554522;color:#e8d6a4;border-radius:9px;padding:10px;font-size:12px;line-height:1.5}
+.small{font-size:11px;color:#888}footer{text-align:center;color:#777;font-size:11px;padding:18px}
+@media(max-width:560px){header{padding:18px 14px}.row>*{flex-basis:100%}.row button{width:100%}}
 </style>
 </head>
 <body>
-<header class="top">
-<h1>Bulk OCR Extractor</h1>
-<p>Extract names and Indian mobile numbers from many photos. Your images are processed in this browser.</p>
-</header>
+<header><h1>Bulk OCR Extractor <span class="small">v2.0</span></h1><p>Extract contacts from screenshots. Processing happens in your browser.</p></header>
 <main>
 <section class="card">
-<h2>1. Add your photos</h2>
-<div class="drop" id="drop">
-<div style="font-size:30px">📷</div><strong>Select up to 500 photos</strong>
-<p class="muted">JPG · JPEG · PNG · WebP · Select multiple images from your Android gallery.</p>
-<label class="btn" for="files">Choose photos</label>
-<input id="files" type="file" accept="image/jpeg,image/png,image/webp" multiple>
-</div>
-<div class="row" style="margin-top:12px">
-<div class="muted" id="fileCount">No photos selected</div>
-<button class="secondary" id="clearFiles" disabled>Clear selection</button>
-</div>
-<div class="notice" style="margin-top:12px">For best results, use clear, upright images. OCR works best with printed English text. Handwriting and blurry screenshots may need manual correction.</div>
+<h2>1. Add screenshots</h2>
+<div class="drop"><strong>Select multiple images</strong><p class="muted">JPG · PNG · WEBP · Process in batches for best performance.</p><label class="btn" for="photos">Choose photos</label><input id="photos" type="file" accept="image/*" multiple></div>
+<div class="row" style="margin-top:10px"><div id="photoCount" class="muted">No photos selected</div><button id="clearPhotos" class="secondary">Clear photos</button></div>
+<div class="row" style="margin-top:12px"><button id="start">Start extraction</button><button id="stop" class="secondary" disabled>Pause</button></div>
+<div class="progress"><div id="bar" class="bar"></div></div><div id="status" class="status">Choose screenshots to begin.</div>
 </section>
-
 <section class="card">
-<h2>2. Extract information</h2>
-<div class="row">
-<button id="start" disabled>Start extraction</button>
-<button id="stop" class="secondary" disabled>Pause after current photo</button>
-</div>
-<div class="progress"><div class="bar" id="bar"></div></div>
-<div class="status" id="status">Choose photos to begin.</div>
-<div class="small" id="detail"></div>
-<div class="statgrid">
-<div class="stat"><b id="done">0</b><span>Photos processed</span></div>
+<h2>2. Extraction summary</h2>
+<div class="grid">
+<div class="stat"><b id="processed">0</b><span>Photos processed</span></div>
 <div class="stat"><b id="found">0</b><span>Phone numbers found</span></div>
 <div class="stat"><b id="dupes">0</b><span>Duplicate numbers</span></div>
-</div>
-</section>
-
-<section class="card">
-<h2>3. Review and export</h2>
-<p class="muted">Export contacts to Excel, CSV, or VCF. Contact names use only your custom serial number (e.g. ace1-001). You can edit phone numbers before exporting.</p>
-<div class="card" style="background:#f8fafc;margin:10px 0;padding:12px;box-shadow:none">
-<strong style="font-size:14px">Custom serial numbers</strong>
-<p class="muted" style="margin:5px 0 10px">The Name column will contain your custom serials, e.g. ace1-001, ace1-002, ace1-003.</p>
-<div class="row">
-<label style="font-size:12px;color:#475569">Prefix<input id="serialPrefix" type="text" value="ace1" maxlength="16" style="display:block;width:100%;margin-top:5px;border:1px solid #cbd5e1;border-radius:8px;padding:10px;font:inherit"></label>
-<label style="font-size:12px;color:#475569">Starting number<input id="serialStart" type="number" min="0" max="999999999" value="1" style="display:block;width:100%;margin-top:5px;border:1px solid #cbd5e1;border-radius:8px;padding:10px;font:inherit"></label>
-</div>
-</div>
-<div style="margin:12px 0">
-<label for="exportFileName" style="font-size:12px;color:#475569;font-weight:650">Excel file name</label>
-<input id="exportFileName" type="text" value="bulk_ocr_contacts" maxlength="80" placeholder="e.g. Kanpur_Event_Contacts" style="display:block;width:100%;margin-top:5px;border:1px solid #cbd5e1;border-radius:8px;padding:11px;font:inherit">
-<p class="muted" style="margin:5px 0 0">Choose the name you want for the downloaded file. The .xlsx extension is added automatically.</p>
-</div>
-<div class="row" style="margin:12px 0">
-<button id="export" disabled>Download Excel (.xlsx)</button>
-<button id="csv" class="secondary" disabled>Download CSV</button>
-<button id="vcf" class="secondary" disabled>Download VCF (.vcf)</button>
-<button id="clearRows" class="secondary" disabled>Clear results</button>
-</div>
-<div class="tablewrap">
-<table><thead><tr><th>Name</th><th>Country Code</th><th>Phone Number</th></tr></thead>
-<tbody id="results"><tr><td colspan="3" class="muted">Your extracted contacts will appear here.</td></tr></tbody></table>
+<div class="stat total"><b id="unique">0</b><span>Total unique numbers extracted</span></div>
 </div>
 </section>
 <section class="card">
-<h2>Privacy and limits</h2>
-<p class="muted">Image files are read locally by your browser. OCR is performed using Tesseract.js downloaded from a public CDN. Excel export uses SheetJS from a public CDN. VCF files are generated locally in your browser. No image upload or paid API is used by this app. This app does not send your contacts to a server.</p>
-<p class="muted">For 500 photos, keep Chrome open and your phone charged. Process in batches of 50–100 if your phone has limited memory. Export regularly so you don't lose work if the tab closes.</p>
+<h2>3. Review contacts</h2>
+<p class="muted">Correct names and numbers before exporting. Numbers are normalized to Indian 10-digit mobile numbers.</p>
+<div class="row"><button id="dedupe" class="secondary">Remove duplicates</button><button id="clearResults" class="secondary">Clear results</button></div>
+<div class="tablewrap"><table><thead><tr><th>#</th><th>Name</th><th>Phone (+91)</th><th>Source photo</th></tr></thead><tbody id="results"><tr><td colspan="4" class="muted">No contacts yet.</td></tr></tbody></table></div>
 </section>
+<section class="card">
+<h2>4. Export settings</h2>
+<div class="grid">
+<div><label>Maximum contacts per file</label><input id="maxContacts" type="number" min="1" max="5000" value="100"></div>
+<div><label>Serial prefix</label><input id="prefix" value="ace1"></div>
+<div><label>Starting serial number</label><input id="serialStart" type="number" min="0" value="1"></div>
+<div><label>Serial digits</label><input id="serialDigits" type="number" min="1" max="8" value="3"></div>
+<div><label>Default file name</label><input id="fileBase" value="contacts"></div>
+<div><label>Country code</label><input id="countryCode" value="+91"></div>
+</div>
+<p class="small" id="preview">Example: ace1-001</p>
+<div class="row"><button id="applyAll" class="secondary">Apply master settings to all files</button><button id="buildFiles">Generate split-file settings</button></div>
+<div id="fileSettings"></div>
+<div class="row" style="margin-top:12px">
+<button id="vcf">Download split VCF files</button><button id="xlsx" class="secondary">Download split Excel files</button><button id="csv" class="secondary">Download split CSV files</button><button id="zip">Download all as ZIP</button>
+</div>
+<p class="small">Each export is split by your maximum contacts setting. ZIP contains the split VCF, Excel and CSV files. No combined VCF is generated.</p>
+</section>
+<section class="card">
+<h2>5. Permanent duplicate history (optional cloud setup)</h2>
+<p class="muted">Cloud duplicate history is disabled until you add your own Supabase project URL and anon key. Without setup, duplicate detection works for the current session only.</p>
+<div class="grid"><div><label>Supabase project URL</label><input id="sbUrl" placeholder="https://your-project.supabase.co"></div><div><label>Supabase anon/public key</label><input id="sbKey" placeholder="Supabase anon key"></div></div>
+<div class="row" style="margin-top:10px"><button id="saveCloud" class="secondary">Save cloud settings on this device</button><button id="syncCloud">Sync duplicate history</button></div><div id="cloudStatus" class="small"></div>
+<div class="notice" style="margin-top:10px">Do not paste a service_role key here. Use only the anon/public key and follow Supabase_setup.md. Cloud history stores normalized phone numbers, so only enable it if you consent to storing them in your own Supabase project.</div>
+</section>
+<section class="card"><h2>Privacy</h2><p class="muted">OCR runs locally in this browser using Tesseract.js. Images are not uploaded. Excel export uses SheetJS. ZIP export uses JSZip. Cloud sync is optional and sends only normalized phone numbers to your configured Supabase table.</p></section>
 </main>
-<footer>Bulk OCR Extractor · Version 1.3 · Browser-based processing</footer>
+<footer>Bulk OCR Extractor · Version 2.0</footer>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-let files=[], rows=[], photosProcessed=0, stopRequested=false, busy=false, worker=null;
-const phoneRegex=/(?:(?:\+?91|0091)[\s().-]*)?(?:[6-9](?:[\s().-]*\d){9})/g;
-function normalizePhone(s){
- let d=s.replace(/\D/g,'');
- if(d.startsWith('0091')) d=d.slice(4);
- else if(d.startsWith('91') && d.length===12) d=d.slice(2);
- return d.length===10 && /^[6-9]\d{9}$/.test(d)?d:null;
-}
-function extractPhones(text){
- const out=[], seen=new Set(); let m;
- phoneRegex.lastIndex=0;
- while((m=phoneRegex.exec(text))!==null){
-   const n=normalizePhone(m[0]);
-   if(n&&!seen.has(n)){seen.add(n);out.push({number:n,index:m.index});}
- }
- return out;
-}
-function guessName(text, phoneIndex){
- const before=text.slice(0,phoneIndex).split(/\n/).map(x=>x.trim()).filter(Boolean);
- const candidates=before.slice(-4).reverse();
- for(const line of candidates){
-   const clean=line.replace(/[|•:;,_]+/g,' ').replace(/\s+/g,' ').trim();
-   if(clean.length<3||clean.length>55)continue;
-   if(/\d/.test(clean))continue;
-   if(/^(name|phone|mobile|contact|address|email|date|whatsapp)\b/i.test(clean))continue;
-   const words=clean.split(/\s+/);
-   if(words.length>=2 && words.length<=5 && words.every(w=>/^[A-Za-z][A-Za-z.'-]*$/.test(w)))return clean;
- }
- return "";
-}
-function updateStats(){
- $('done').textContent=photosProcessed;
- const nums=rows.map(r=>r.phone).filter(Boolean);
- $('found').textContent=nums.length;
- $('dupes').textContent=nums.length-new Set(nums).size;
- const hasContacts=nums.length>0;
- $('export').disabled=!hasContacts;$('csv').disabled=!hasContacts;$('vcf').disabled=!hasContacts;$('clearRows').disabled=!rows.length&&!photosProcessed;
- renderRows();
-}
-function serialFor(index){
- const prefix=($('serialPrefix')?.value||'ace1').trim()||'ace1';
- const raw=$('serialStart')?.value??'1';
- const start=Math.max(0,parseInt(raw,10)||0);
- return prefix+'-'+String(start+index).padStart(3,'0');
-}
-function renderRows(){
- const body=$('results');body.innerHTML='';
- if(!rows.length){body.innerHTML='<tr><td colspan="3" class="muted">Your extracted contacts will appear here.</td></tr>';return;}
- rows.forEach((r,i)=>{
-  const tr=document.createElement('tr');
-  const vals=[serialFor(i),'+91',r.phone];
-  vals.forEach((v,j)=>{
-   const td=document.createElement('td');
-   if(j===2){const inp=document.createElement('input');inp.value=v||'';inp.inputMode='numeric';inp.setAttribute('aria-label','Phone number');inp.addEventListener('change',()=>{r.phone=inp.value.replace(/\D/g,'').slice(-10);updateStats();});td.appendChild(inp);}
-   else {td.textContent=v;}
-   tr.appendChild(td);
-  });body.appendChild(tr);
- });
-}
-$('files').addEventListener('change',e=>{
- const incoming=[...e.target.files].filter(f=>f.type.startsWith('image/'));
- files=[...files,...incoming].slice(0,500);
- $('fileCount').textContent=files.length+' photo(s) selected';
- $('start').disabled=!files.length||busy;$('clearFiles').disabled=!files.length;
- $('status').textContent=files.length?'Ready to process.':'Choose photos to begin.';
- e.target.value='';
-});
-$('clearFiles').onclick=()=>{files=[];$('fileCount').textContent='No photos selected';$('start').disabled=true;$('clearFiles').disabled=true;};
-$('stop').onclick=()=>{stopRequested=true;$('stop').disabled=true;$('status').textContent='Will pause after the current photo…';};
-async function initWorker(){
- if(worker)return worker;
- if(!window.Tesseract)throw new Error('OCR library did not load. Check your internet connection and refresh.');
- worker=await Tesseract.createWorker('eng',1,{logger:m=>{
-  if(m.status==='recognizing text')$('detail').textContent='Reading text… '+Math.round((m.progress||0)*100)+'%';
- }});
- return worker;
-}
-async function processImage(file){
- const w=await initWorker();
- const result=await w.recognize(file);
- const text=result.data.text||'';
- const phones=extractPhones(text);
- phones.forEach(p=>{
-  const name=guessName(text,p.index);
-  rows.push({name,phone:p.number,source:file.name,review:!name});
- });
-}
-$('start').onclick=async()=>{
- if(busy||!files.length)return;
- busy=true;stopRequested=false;$('start').disabled=true;$('stop').disabled=false;
- let completed=0;const total=files.length;
- $('status').textContent='Starting OCR engine…';
- try{
-  await initWorker();
-  for(let i=0;i<total;i++){
-   if(stopRequested)break;
-   $('status').textContent='Processing '+(i+1)+' of '+total+': '+files[i].name;
-   try{await processImage(files[i]);}catch(err){console.warn('Could not process '+files[i].name,err);}
-   completed++;
-   photosProcessed++;
-   $('bar').style.width=(completed/total*100)+'%';
-   $('detail').textContent='Completed '+completed+' / '+total+' photos';
-   updateStats();
-  }
-  $('status').textContent=stopRequested?'Paused. You can export results or resume with the remaining photos.':'Finished processing '+completed+' photo(s).';
-  if(stopRequested)files=files.slice(completed);
-  else files=[];
-  $('fileCount').textContent=files.length?files.length+' photo(s) remaining':'All selected photos processed';
- }catch(e){$('status').textContent='Error: '+e.message;}
- finally{busy=false;$('start').disabled=!files.length;$('stop').disabled=true;}
-};
-function exportRows(){
- return rows.filter(r=>normalizePhone(r.phone)).map(r=>r.phone).map((phone,i)=>({'Name':serialFor(i),'Country Code':'+91','Phone Number':phone}));
-}
-function exportFileBase(){
- let name=($('exportFileName')?.value||'bulk_ocr_contacts').trim();
- name=name.replace(/\.(xlsx|csv)$/i,'').replace(/[^a-zA-Z0-9 _-]/g,'').replace(/\s+/g,'_').replace(/_+/g,'_').replace(/^[_-]+|[_-]+$/g,'').slice(0,80);
- return name||'bulk_ocr_contacts';
-}
-$('export').onclick=()=>{
- if(!window.XLSX){alert('Excel library did not load. Check internet and refresh.');return;}
- const ws=XLSX.utils.json_to_sheet(exportRows(),{header:['Name','Country Code','Phone Number']});
- ws['!cols']=[{wch:18},{wch:16},{wch:20}];
- const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Contacts');
- XLSX.writeFile(wb,exportFileBase()+'.xlsx');
-};
-$('csv').onclick=()=>{
- const data=exportRows(), keys=['Name','Country Code','Phone Number'];
- const esc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
- const csv=[keys.map(esc).join(','),...data.map(r=>keys.map(k=>esc(r[k])).join(','))].join('\r\n');
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download=exportFileBase()+'.csv';a.click();URL.revokeObjectURL(a.href);
-};
-function escapeVCard(value){
- return String(value??'').replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
-}
-$('vcf').onclick=()=>{
- const contacts=exportRows();
- if(!contacts.length){alert('No valid phone numbers to export.');return;}
- const cards=contacts.map(c=>{
-  const name=escapeVCard(c.Name);
-  return ['BEGIN:VCARD','VERSION:3.0','N:'+name+';;;;','FN:'+name,'TEL;TYPE=CELL:+91'+c['Phone Number'],'END:VCARD'].join('\r\n');
- });
- const blob=new Blob([cards.join('\r\n')+'\r\n'],{type:'text/vcard;charset=utf-8'});
- const a=document.createElement('a');const url=URL.createObjectURL(blob);
- a.href=url;a.download=exportFileBase()+'.vcf';document.body.appendChild(a);a.click();a.remove();
- setTimeout(()=>URL.revokeObjectURL(url),1000);
-};
-$('serialPrefix').addEventListener('input',renderRows);
-$('serialStart').addEventListener('input',renderRows);
-$('clearRows').onclick=()=>{if(confirm('Delete all extracted results and reset the processed-photo count?')){rows=[];photosProcessed=0;$('bar').style.width='0%';updateStats();$('status').textContent='Results cleared.';}};
-const drop=$('drop');
-drop.addEventListener('dragover',e=>{e.preventDefault();drop.style.background='#eff6ff';});
-drop.addEventListener('dragleave',()=>drop.style.background='#f8fafc');
-drop.addEventListener('drop',e=>{e.preventDefault();drop.style.background='#f8fafc';const incoming=[...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));files=[...files,...incoming].slice(0,500);$('fileCount').textContent=files.length+' photo(s) selected';$('start').disabled=!files.length;});
-if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+let photos=[], contacts=[], paused=false, worker=null, fileConfigs=[];
+const digits=n=>String(n).padStart(Math.max(1,Number($('serialDigits').value)||3),'0');
+function serial(i){return ($('prefix').value.trim()||'ace1')+'-'+digits((Number($('serialStart').value)||1)+i)}
+function stats(){let nums=contacts.map(x=>x.phone), unique=new Set(nums);$('processed').textContent=processedCount;$('found').textContent=nums.length;$('dupes').textContent=nums.length-unique.size;$('unique').textContent=unique.size;$('preview').textContent='Preview: '+serial(0)+', '+serial(1)+', '+serial(2)}
+let processedCount=0;
+$('photos').onchange=e=>{photos.push(...Array.from(e.target.files));$('photoCount').textContent=photos.length+' photo(s) selected';e.target.value=''};
+$('clearPhotos').onclick=()=>{photos=[];$('photoCount').textContent='No photos selected'};
+function normalize(s){let d=s.replace(/\D/g,'');if(d.startsWith('0091'))d=d.slice(4);else if(d.startsWith('91')&&d.length===12)d=d.slice(2);return d.length===10&&/^[6-9]\d{9}$/.test(d)?d:null}
+function parse(text,source){const re=/(?:(?:\+?91|0091)[\s().-]*)?(?:[6-9](?:[\s().-]*\d){9})/g;let m,seen=new Set(),out=[];while((m=re.exec(text))){let p=normalize(m[0]);if(p&&!seen.has(p)){seen.add(p);let before=text.slice(Math.max(0,m.index-100),m.index).split(/\n/).map(x=>x.trim()).filter(Boolean);let name=(before[before.length-1]||'').replace(/[^A-Za-z .'-]/g,'').trim();if(name.length>45)name='';out.push({name,phone:p,source})}}return out}
+async function getWorker(){if(!worker)worker=await Tesseract.createWorker('eng');return worker}
+$('start').onclick=async()=>{if(!photos.length)return;paused=false;$('start').disabled=true;$('stop').disabled=false;let total=photos.length,done=0;try{let w=await getWorker();for(let f of photos){if(paused)break;$('status').textContent='Reading '+f.name;try{let r=await w.recognize(f);contacts.push(...parse(r.data.text||'',f.name))}catch(e){$('status').textContent='Could not read '+f.name}done++;processedCount++;$('bar').style.width=(done/total*100)+'%';stats();render()}photos=paused?photos.slice(done):[];$('photoCount').textContent=photos.length+' photo(s) remaining';$('status').textContent=paused?'Paused.':'Extraction complete.'}catch(e){$('status').textContent='OCR error: '+e.message}finally{$('start').disabled=!photos.length;$('stop').disabled=true}};
+$('stop').onclick=()=>{paused=true;$('stop').disabled=true};
+function render(){let body=$('results');body.innerHTML='';contacts.forEach((c,i)=>{let tr=document.createElement('tr');[i+1,c.name,c.phone,c.source].forEach((v,j)=>{let td=document.createElement('td');if(j===1||j===2){let inp=document.createElement('input');inp.value=v;inp.onchange=()=>{if(j===1)c.name=inp.value;else c.phone=normalize(inp.value)||inp.value.replace(/\D/g,'').slice(-10);stats()};td.append(inp)}else td.textContent=v;tr.append(td)});body.append(tr)});if(!contacts.length)body.innerHTML='<tr><td colspan="4" class="muted">No contacts yet.</td></tr>'}
+$('dedupe').onclick=()=>{let s=new Set();contacts=contacts.filter(c=>{if(s.has(c.phone))return false;s.add(c.phone);return true});render();stats()};
+$('clearResults').onclick=()=>{contacts=[];processedCount=0;render();stats()};
+function split(){let n=Math.max(1,Number($('maxContacts').value)||100),arr=[];for(let i=0;i<contacts.length;i+=n)arr.push(contacts.slice(i,i+n));return arr}
+function makeConfigs(){let chunks=split(),base=$('fileBase').value.trim()||'contacts';fileConfigs=chunks.map((a,i)=>({name:base+'_'+String(i+1).padStart(2,'0'),serialStart:(Number($('serialStart').value)||1)+i*Math.max(1,Number($('maxContacts').value)||100),contacts:a}));renderConfigs()}
+function renderConfigs(){let root=$('fileSettings');root.innerHTML='';fileConfigs.forEach((c,i)=>{let d=document.createElement('div');d.className='filecfg';d.innerHTML='<div class="row"><div><label>File '+(i+1)+' name</label><input data-name="'+i+'"></div><div><label>Starting serial</label><input type="number" data-start="'+i+'"></div><div class="small">'+c.contacts.length+' contacts</div></div>';d.querySelector('[data-name]').value=c.name;d.querySelector('[data-start]').value=c.serialStart;d.querySelector('[data-name]').onchange=e=>c.name=e.target.value;d.querySelector('[data-start]').onchange=e=>c.serialStart=Number(e.target.value);root.append(d)})}
+$('buildFiles').onclick=()=>{makeConfigs();$('status').textContent=fileConfigs.length+' split file(s) configured.'};
+$('applyAll').onclick=()=>{let base=$('fileBase').value.trim()||'contacts',n=Math.max(1,Number($('maxContacts').value)||100);fileConfigs.forEach((c,i)=>{c.name=base+'_'+String(i+1).padStart(2,'0');c.serialStart=(Number($('serialStart').value)||1)+i*n});renderConfigs()};
+function rowsFor(c){return c.contacts.map((x,i)=>({'Serial Number':$('prefix').value+'-'+String(c.serialStart+i).padStart(Number($('serialDigits').value)||3,'0'),'Name':x.name,'Phone Number':$('countryCode').value+' '+x.phone,'Source Photo':x.source}))}
+function vcfFor(c){return c.contacts.map((x,i)=>'BEGIN:VCARD\r\nVERSION:3.0\r\nFN:'+((x.name||'Unknown').replace(/[\r\n;]/g,' '))+'\r\nTEL;TYPE=CELL:'+ $('countryCode').value.replace(/\D/g,'')+x.phone+'\r\nNOTE:'+ $('prefix').value+'-'+String(c.serialStart+i).padStart(Number($('serialDigits').value)||3,'0')+'\r\nEND:VCARD').join('\r\n')}
+function ensure(){if(!fileConfigs.length)makeConfigs();return fileConfigs}
+function download(name,data,type){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([data],{type}));a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500)}
+$('vcf').onclick=()=>ensure().forEach(c=>download(c.name+'.vcf',vcfFor(c),'text/vcard;charset=utf-8'));
+$('csv').onclick=()=>ensure().forEach(c=>{let rows=rowsFor(c),keys=Object.keys(rows[0]||{'Serial Number':'','Name':'','Phone Number':'','Source Photo':''});let esc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';download(c.name+'.csv',[keys.join(','),...rows.map(r=>keys.map(k=>esc(r[k])).join(','))].join('\r\n'),'text/csv;charset=utf-8')});
+$('xlsx').onclick=()=>{if(!window.XLSX){alert('Excel library did not load.');return}ensure().forEach(c=>{let ws=XLSX.utils.json_to_sheet(rowsFor(c)),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Contacts');XLSX.writeFile(wb,c.name+'.xlsx')})};
+$('zip').onclick=async()=>{if(!window.JSZip){alert('ZIP library did not load.');return}let z=new JSZip();ensure().forEach(c=>{let rows=rowsFor(c),keys=Object.keys(rows[0]||{'Serial Number':'','Name':'','Phone Number':'','Source Photo':''}),csv=[keys.join(','),...rows.map(r=>keys.map(k=>'"'+String(r[k]??'').replace(/"/g,'""')+'"').join(','))].join('\r\n');z.file(c.name+'.vcf',vcfFor(c));z.file(c.name+'.csv',csv);let ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.write(wb={SheetNames:['Contacts'],Sheets:{Contacts:ws}},{bookType:'xlsx',type:'array'});z.file(c.name+'.xlsx',wb)});let b=await z.generateAsync({type:'blob'});let a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='bulk_ocr_split_exports.zip';a.click()};
+function loadCloud(){try{let x=JSON.parse(localStorage.getItem('bulkocr_supabase')||'{}');$('sbUrl').value=x.url||'';$('sbKey').value=x.key||''}catch{}}
+$('saveCloud').onclick=()=>{localStorage.setItem('bulkocr_supabase',JSON.stringify({url:$('sbUrl').value.trim(),key:$('sbKey').value.trim()}));$('cloudStatus').textContent='Settings saved on this device.'};
+$('syncCloud').onclick=async()=>{let url=$('sbUrl').value.trim().replace(/\/$/,''),key=$('sbKey').value.trim();if(!url||!key){$('cloudStatus').textContent='Enter Supabase URL and anon key first.';return}try{let nums=[...new Set(contacts.map(c=>c.phone))];let res=await fetch(url+'/rest/v1/duplicate_history?on_conflict=phone',{method:'POST',headers:{apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json',Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(nums.map(phone=>({phone}))) });if(!res.ok)throw Error(await res.text());$('cloudStatus').textContent='Synced '+nums.length+' unique number(s) to Supabase.'}catch(e){$('cloudStatus').textContent='Sync failed: '+e.message+' · Check Supabase_setup.md'}};
+['prefix','serialStart','serialDigits'].forEach(id=>$(id).addEventListener('input',stats));loadCloud();stats();
 </script>
 </body></html>
